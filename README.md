@@ -39,10 +39,10 @@ cp .env.example .env.local
 ```
 
 ```env
-VITE_CLICKHOUSE_URL=https://your-host.clickhouse.cloud
-VITE_CLICKHOUSE_USER=default
-VITE_CLICKHOUSE_PASSWORD=your-password
-VITE_CLICKHOUSE_DATABASE=f1_mart
+CLICKHOUSE_URL=https://your-host.clickhouse.cloud
+CLICKHOUSE_USER=default
+CLICKHOUSE_PASSWORD=your-password
+CLICKHOUSE_DATABASE=f1_mart
 ```
 
 ```bash

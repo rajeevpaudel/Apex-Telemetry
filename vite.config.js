@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const chUrl = env.VITE_CLICKHOUSE_URL
+  const chUrl = env.CLICKHOUSE_URL
 
   return {
   plugins: [react()],

@@ -4,17 +4,17 @@ import { getDriverHeadshot } from './driverHeadshots.js'
 
 function getConfig() {
   return {
-    url: import.meta.env.VITE_CLICKHOUSE_URL || '',
-    username: import.meta.env.VITE_CLICKHOUSE_USER || 'default',
-    password: import.meta.env.VITE_CLICKHOUSE_PASSWORD || '',
-    database: import.meta.env.VITE_CLICKHOUSE_DATABASE || 'f1_mart',
+    url: import.meta.env.CLICKHOUSE_URL || '',
+    username: import.meta.env.CLICKHOUSE_USER || 'default',
+    password: import.meta.env.CLICKHOUSE_PASSWORD || '',
+    database: import.meta.env.CLICKHOUSE_DATABASE || 'f1_mart',
   }
 }
 
 export async function chQuery(sql, timeoutMs = 5000) {
   const cfg = getConfig()
   const base = import.meta.env.DEV ? '/ch' : cfg.url
-  if (!base) throw new Error('VITE_CLICKHOUSE_URL is not configured')
+  if (!base) throw new Error('CLICKHOUSE_URL is not configured')
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {

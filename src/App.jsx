@@ -32,7 +32,7 @@ function categoriseError(e) {
 
 const ERROR_META = {
   network: { label: 'WAREHOUSE UNREACHABLE', hint: 'ClickHouse is not running or the site cannot reach it.', action: 'Start ClickHouse on port 8123 and retry.' },
-  auth:    { label: 'AUTHENTICATION FAILED', hint: 'The username or password is incorrect.',                      action: 'Check VITE_CLICKHOUSE_USER / VITE_CLICKHOUSE_PASSWORD in .env' },
+  auth:    { label: 'AUTHENTICATION FAILED', hint: 'The username or password is incorrect.',                      action: 'Check CLICKHOUSE_USER / CLICKHOUSE_PASSWORD in .env' },
   db:      { label: 'DATABASE NOT FOUND',    hint: '"f1_mart" database does not exist or migrations have not run.', action: 'Run the dbt migrations first.' },
   unknown: { label: 'QUERY FAILED',          hint: 'An unexpected error was returned by the warehouse.',           action: 'Check the error details below.' },
 }
@@ -264,10 +264,10 @@ function App() {
     })
   }, [compareA, compareB])
 
-  if (connecting) return <DbConnecting endpoint={import.meta.env.VITE_CLICKHOUSE_URL || 'http://localhost:8123'} />
+  if (connecting) return <DbConnecting endpoint={import.meta.env.CLICKHOUSE_URL || 'http://localhost:8123'} />
 
   if (dbError) return <DbError error={dbError}
-    endpoint={import.meta.env.VITE_CLICKHOUSE_URL || 'http://localhost:8123'}
+    endpoint={import.meta.env.CLICKHOUSE_URL || 'http://localhost:8123'}
     onRetry={() => setRetryKey(k => k + 1)} />
 
   return (
@@ -719,7 +719,7 @@ function Footer() {
   return (
     <footer className="footer">
       <div>MART_QUALIFYING_SUMMARY · MART_LAP_TELEMETRY · DIM_SESSIONS · DIM_CIRCUITS</div>
-      <div className="f-r">QUERY ENGINE · CLICKHOUSE · {import.meta.env.VITE_CLICKHOUSE_URL || 'localhost:8123'}</div>
+      <div className="f-r">QUERY ENGINE · CLICKHOUSE · {import.meta.env.CLICKHOUSE_URL || 'localhost:8123'}</div>
     </footer>
   )
 }
