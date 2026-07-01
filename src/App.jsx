@@ -344,9 +344,14 @@ function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="brand-bar"/>
-        <span className="brand-name">APEX/<i>TELEMETRY</i></span>
-        <span className="brand-sub">QUALIFYING LAP COMPARATOR · v0.3</span>
+        <svg width="28" height="28" viewBox="0 0 100 100" fill="none" className="brand-mark">
+          <path d="M14 82 L50 22 L86 82" stroke="#FF1801" strokeWidth="9" strokeLinecap="square" strokeLinejoin="miter"/>
+          <path d="M32 82 L50 52 L68 82" stroke="#3a3a42" strokeWidth="6" strokeLinecap="square" strokeLinejoin="miter"/>
+        </svg>
+        <div>
+          <div className="brand-name">APE<span className="brand-x">X</span></div>
+          <div className="brand-sub">QUALIFYING TELEMETRY</div>
+        </div>
       </div>
       <div className="tickers">
         <Ticker label="LIVE">SECTOR DELTA ENGINE</Ticker>
@@ -542,7 +547,7 @@ function CompareView({a, b, circuit, sectorWinner, animKey, onReset, showCarsOnT
           </div>
         </div>
         <div className="mr-r">
-          <span className="mr-info">Static panel comparison ↔ live driving simulation with full telemetry replay</span>
+          <span className="mr-info">Static panel comparison</span>
         </div>
       </div>
 
@@ -619,9 +624,9 @@ function CompareView({a, b, circuit, sectorWinner, animKey, onReset, showCarsOnT
         <button className="ghost-btn" onClick={onReset}>
           <span>◀</span> RESELECT DRIVERS
         </button>
-        <div className="cf-note">
+        {/* <div className="cf-note">
           Best-lap logic: <code>COALESCE(q3, q2, q1)</code>. Times parsed from <code>m:ss.mmm</code> strings to milliseconds.
-        </div>
+        </div> */}
       </div>
     </section>
   )

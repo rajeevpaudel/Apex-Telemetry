@@ -45,10 +45,10 @@
     position: sticky; top: 0; z-index: 50;
   }
   .brand{ display:flex; align-items:center; gap: 14px; }
-  .brand-bar{ width: 6px; height: 22px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-  .brand-name{ font-family: var(--display); font-weight: 700; letter-spacing: 4px; font-size: 22px; text-transform: uppercase; }
-  .brand-name i{ font-style: normal; color: var(--accent); font-weight: 400;}
-  .brand-sub{ font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--ink-3); }
+  .brand-mark{ display:block; flex-shrink: 0; }
+  .brand-name{ font-family: var(--display); font-weight: 700; letter-spacing: 4px; font-size: 22px; text-transform: uppercase; line-height: 1; }
+  .brand-x{ color: var(--accent); font-weight: 400; }
+  .brand-sub{ font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--ink-3); margin-top: 3px; }
   .tickers{ display:flex; gap: 18px; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; }
   .ticker{ display:inline-flex; align-items:center; gap:8px; padding: 5px 10px; border:1px solid var(--line); border-radius: 2px; color: var(--ink-2); }
   .ticker em{ font-style: normal; color: var(--ink-1); }
@@ -238,55 +238,93 @@
     display: grid; grid-template-columns: 1fr 280px 1fr; gap: 18px; margin-bottom: 18px;
   }
 
-  /* Driver card */
+  /* Driver card — overlay layout */
   .driver-card{
-    position: relative; padding: 22px; border: 1px solid var(--line); overflow: hidden; min-height: 380px;
+    position: relative; overflow: hidden; min-height: 448px;
+    border: 1px solid var(--line);
   }
-  .driver-card.side-right{ text-align: right; }
-  .dc-watermark{
-    position:absolute; top: -28px; right: -10px;
-    font-family: var(--display); font-weight: 700;
-    font-size: 200px; line-height: 1; color: rgba(255,255,255,0.025);
-    letter-spacing: -6px; pointer-events: none;
-  }
-  .side-left .dc-watermark{ right:auto; left:-10px; }
-  .dc-top{ display:grid; grid-template-columns: 80px 1fr 90px; gap: 16px; align-items: center; }
-  .side-right .dc-top{ grid-template-columns: 90px 1fr 80px; direction: rtl; }
-  .side-right .dc-top > *{ direction: ltr; text-align: right; }
-  .dc-pos-num{ font-family: var(--display); font-weight: 700; font-size: 64px; line-height: 1; color: var(--ink-1); }
-  .dc-pos-lbl{ font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--ink-3); margin-top: 2px; }
-  .dc-fn{ font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-2); }
-  .dc-ln{ font-family: var(--display); font-weight: 700; font-size: 32px; letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
-  .dc-team{ display:inline-flex; align-items:center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 2px; margin-top: 8px; }
-  .side-right .dc-team{ flex-direction: row-reverse; }
-  .dc-team-bar{ width: 14px; height: 3px; }
-  .dc-portrait{
-    width: 90px; height: 90px; border: 1px solid var(--line-2);
-    background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent);
-    display:flex; flex-direction: column; align-items:center; justify-content:center;
-    position: relative;
-  }
-  .dc-initials{ font-family: var(--display); font-weight: 700; font-size: 32px; letter-spacing: 1px; }
-  .dc-headshot{ width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-  .dc-number{ position: absolute; bottom: 0; right: 0; font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1; padding: 2px 5px; background: rgba(0,0,0,0.65); backdrop-filter: blur(2px); }
 
-  .dc-car{ display:flex; margin: 16px 0 14px; }
-  .dc-lap{ border-top: 1px dashed var(--line-2); border-bottom: 1px dashed var(--line-2); padding: 14px 0; margin: 4px 0; }
-  .dc-lap-lbl{ font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--ink-3); }
-  .dc-lap-time{ font-family: var(--display); font-weight: 600; font-size: 56px; letter-spacing: 2px; line-height: 1; margin-top: 4px;
-    font-variant-numeric: tabular-nums; color: var(--ink-1);
-    text-shadow: 0 0 30px rgba(255,255,255,0.04);
+  /* Dark gradient scrim — protects bottom text from headshot bleed */
+  .driver-card::after{
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background: linear-gradient(to top, rgba(7,7,10,0.96) 0%, rgba(7,7,10,0.75) 22%, rgba(7,7,10,0.1) 54%, transparent 72%);
   }
-  .dc-mini{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; }
-  .side-right .dc-mini{ direction: rtl; }
-  .dc-mini-row{
-    background: rgba(255,255,255,0.03); border-left: 2px solid var(--team, var(--accent));
-    padding: 8px 10px; display:flex; align-items:center; justify-content: space-between;
-    font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
+
+  /* Watermark */
+  .dc-watermark{
+    position: absolute; bottom: -28px;
+    font-family: var(--display); font-weight: 700;
+    font-size: 215px; line-height: 1; opacity: 0.036;
+    letter-spacing: -12px; pointer-events: none; user-select: none;
   }
-  .side-right .dc-mini-row{ direction: ltr; border-left: 0; border-right: 2px solid var(--team, var(--accent));}
-  .dc-mini-row span{ color: var(--ink-3); }
-  .dc-mini-row b{ color: var(--ink-1); font-weight: 600; }
+
+  /* Headshot — full-height, bleeds from outer edge, fades inward */
+  .dc-headshot-wrap{
+    position: absolute; top: 0; bottom: 0; width: 58%; overflow: hidden;
+  }
+  .dc-headshot-left{
+    left: 0;
+    -webkit-mask-image: linear-gradient(to right, black 0%, black 30%, rgba(0,0,0,0.55) 55%, transparent 82%);
+    mask-image: linear-gradient(to right, black 0%, black 30%, rgba(0,0,0,0.55) 55%, transparent 82%);
+  }
+  .dc-headshot-right{
+    right: 0;
+    -webkit-mask-image: linear-gradient(to left, black 0%, black 30%, rgba(0,0,0,0.55) 55%, transparent 82%);
+    mask-image: linear-gradient(to left, black 0%, black 30%, rgba(0,0,0,0.55) 55%, transparent 82%);
+  }
+
+  /* 3D car canvas — clipped container anchored to inner edge */
+  .dc-car-svg{
+    position: absolute; top: 40%; transform: translateY(-50%);
+    width: 56%; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+  }
+  .dc-car-svg-left{ right: 0; }
+  .dc-car-svg-right{ left: 0; }
+
+  /* Position badge */
+  .dc-pos-badge{ position: absolute; top: 20px; z-index: 3; }
+  .dc-pos-badge-left{ left: 20px; }
+  .dc-pos-badge-right{ right: 20px; text-align: right; }
+  .dc-pos-num{
+    font-family: var(--display); font-weight: 700; font-size: 70px;
+    line-height: 1; color: var(--ink-1);
+    text-shadow: 0 2px 30px rgba(0,0,0,0.96);
+  }
+  .dc-pos-lbl{ font-family: var(--mono); font-size: 9px; letter-spacing: 3px; color: var(--ink-3); margin-top: 2px; }
+
+  /* Driver identity */
+  .dc-identity{ position: absolute; bottom: 90px; z-index: 3; }
+  .dc-identity-left{ left: 20px; }
+  .dc-identity-right{ right: 20px; text-align: right; }
+  .dc-fn{
+    font-family: var(--display); font-weight: 300; font-size: 22px;
+    letter-spacing: 1px; color: var(--ink-2); line-height: 1.1;
+    text-shadow: 0 1px 8px rgba(0,0,0,1), 0 2px 24px rgba(0,0,0,1);
+  }
+  .dc-ln{
+    font-family: var(--display); font-weight: 700; font-size: 30px;
+    letter-spacing: 1px; line-height: 1;
+    text-shadow: 0 1px 8px rgba(0,0,0,1), 0 2px 24px rgba(0,0,0,1);
+  }
+  .dc-team{ display: flex; align-items: center; gap: 8px; margin-top: 9px; font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; }
+  .dc-team-right{ justify-content: flex-end; }
+  .dc-team-bar{ width: 14px; height: 3px; flex-shrink: 0; }
+
+  /* Lap time strip */
+  .dc-lap-strip{
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+    padding: 10px 20px;
+    background: rgba(4,4,9,0.88); border-top: 1px solid;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .dc-lap-lbl{ font-family: var(--mono); font-size: 8.5px; letter-spacing: 2px; color: var(--ink-3); }
+  .dc-lap-time{
+    font-family: var(--display); font-weight: 700; font-size: 42px;
+    line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: 1px;
+  }
+  .dc-lap-num{ font-family: var(--display); font-weight: 700; font-size: 32px; opacity: 0.38; line-height: 1; }
 
   /* Delta core (center) */
   .delta-core{
@@ -449,9 +487,13 @@
   }
 
   /* Compact mode (tweak) */
-  .app.compact .driver-card{ min-height: 320px; padding: 16px; }
-  .app.compact .dc-lap-time{ font-size: 44px; }
-  .app.compact .dc-pos-num{ font-size: 52px; }
+  .app.compact .driver-card{ min-height: 360px; }
+  .app.compact .dc-lap-time{ font-size: 32px; }
+  .app.compact .dc-pos-num{ font-size: 54px; }
+  .app.compact .dc-car-svg{ width: 52%; }
+  .app.compact .dc-identity{ bottom: 80px; }
+  .app.compact .dc-fn{ font-size: 18px; }
+  .app.compact .dc-ln{ font-size: 24px; }
   .app.compact .track-svg{ height: 380px; }
 
   /* Boot intro */
@@ -463,6 +505,7 @@
   #boot.gone{ opacity: 0; visibility: hidden; }
   .boot-mark{ font-family: var(--display); font-weight: 700; letter-spacing: 8px; font-size: 32px; }
   .boot-mark i{ font-style: normal; color: var(--accent); font-weight: 400; }
+  #boot svg{ display: block; }
   .boot-bar{ width: 240px; height: 2px; background: #1a1a20; overflow: hidden; position: relative; }
   .boot-bar::after{ content:""; position: absolute; top:0; bottom:0; width:60%; background: var(--accent); animation: bootScan 1.4s ease-in-out infinite; }
   @keyframes bootScan { 0%{left:-60%} 100%{left:100%} }

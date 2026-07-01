@@ -33,3 +33,11 @@ const HEADSHOTS = {
 export function getDriverHeadshot(driverId) {
   return HEADSHOTS[driverId] ?? null
 }
+
+export function getDriverHeadshotHQ(driverId) {
+  const url = getDriverHeadshot(driverId)
+  if (!url) return null
+  return url
+    .replace('/d_driver_fallback_image.png', '')
+    .replace('.transform/1col/image.png', '')
+}
