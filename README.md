@@ -1,34 +1,111 @@
-# Apex Telemetry
+<div align="center">
 
-A qualifying lap comparator for Formula 1. Pick a season, round, and two drivers — compare their fastest qualifying laps side by side with sector deltas, speed traps, mini-sector strips, and a live SVG track map.
+![logo](https://i.imgur.com/Fm4mlAY.png)
 
-Includes a 3D simulation mode (Three.js) that replays each driver's lap on an extruded circuit with per-driver HUDs. Available for 2023+ races where full telemetry is in the warehouse.
+# APEX TELEMETRY
+
+**A Formula 1 qualifying lap comparator — head-to-head sector deltas, speed traps, mini-sector strips, and animated track maps, all live from a ClickHouse warehouse.**
+
+[![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?style=flat-square&logo=vite)](https://vite.dev)
+[![Three.js](https://img.shields.io/badge/Three.js-WIP-white?style=flat-square&logo=three.js)](https://threejs.org)
+[![ClickHouse](https://img.shields.io/badge/ClickHouse-warehouse-FFCC01?style=flat-square&logo=clickhouse)](https://clickhouse.com)
+
+</div>
+
+---
+
+> **Data pipeline:** Raw F1 telemetry → ClickHouse warehouse → this UI.
+> The ETL layer lives in [Monocoque](https://github.com/rajeevpaudel/Monocoque) — run that first to populate the `f1_mart` schema before launching Apex.
+
+---
+
+## What it looks like
+
+![loading_screen](https://i.imgur.com/nwd8Bpy.png)
+---
+
+### Driver selection
+
+Pick a season, round, and qualifying session — the grid sorts by fastest time and shows each driver's team colour, headshot, and Q1/Q2/Q3 split.
+
+
+![driver_selection](https://i.imgur.com/ys5WFrF.png)
+
+---
+
+### Comparison view — 2D telemetry
+
+The main event. Once you click **RUN COMPARISON** the app queries the warehouse and builds the side-by-side breakdown:
+
+| Panel | What it shows |
+|---|---|
+| **Driver cards** | Qualifying position, team colour, animated lap time count-up, Q1/Q2/Q3 splits |
+| **Head-to-head delta** | Gap in seconds with animated ring gauge, coloured by the faster driver's team |
+| **Circuit map** | SVG track with sector dominance coloured by team; animated car positions (2023+) |
+| **Sector bars** | S1/S2/S3 delta — lower bar wins |
+| **Speed traps** | i1 / i2 / finish-line trap speeds side by side |
+| **Mini-sector strip** | Per-mini-sector colour coding: purple = session best, green = personal best, yellow = no improvement |
+
+![max_vs_ham](https://i.imgur.com/PEeOB4M.png)
+
+![Demo video](https://github.com/user-attachments/assets/b255d104-f739-441e-9744-80c4f40d7fd1
+)
+
+---
+
+### 3D simulation *(work in progress)*
+
+A Three.js replay mode that puts both cars on an extruded 3D circuit and scrubs through the lap with per-driver HUDs. Available for 2023+ races where full GPS telemetry is in the warehouse.
+
+> Currently marked **Work In Progress** in the UI. The tab is visible but disabled for pre-2023 races where telemetry isn't available.
+
+> **Screenshot tip:** once the 3D view is further along, record a short rotating camera clip of both cars on the circuit with the HUD overlays — that will be the most visually striking asset in this README.
+
+---
 
 ## Features
 
-- **Driver cards** — qualifying position, team colour, best lap time with animated count-up, Q1/Q2/Q3 session times
-- **Delta core** — head-to-head gap with animated ring gauge
-- **Sector bars** — S1/S2/S3 delta breakdown
-- **Speed traps** — i1 / i2 / finish-line speeds
-- **Mini-sector strip** — per-mini-sector colour coding (purple / green / yellow)
-- **SVG track map** — sector dominance coloured by team, animated car positions (2023+)
-- **3D simulation** — Three.js lap replay with telemetry HUD and scrubbable timeline (2023+)
+- **Animated boot sequence** — warehouse connection status with retries and typed error diagnosis
+- **Season / round / session selector** — All (best lap), Q1, Q2, Q3 filtering
+- **Driver picker** — grid sorted by lap time, team-coloured headshots
+- **Animated delta count-up** — lap gap animates to final value on load
+- **Ring gauge** — proportional gap visualised as a circular progress arc
+- **SVG circuit map** — sector dominance, animated car dot positions, sector break markers
+- **Sector bar chart** — S1/S2/S3 breakdown with winner highlight
+- **Speed trap comparison** — three trap speeds with directional bar
+- **Mini-sector strip** — per-mini-sector segment colour (purple / green / yellow)
+- **Tweaks panel** — toggle scanlines, compact density, accent colour, animated cars
+- **3D lap replay** *(WIP)* — Three.js extruded circuit with telemetry HUD and scrubbable timeline
+- **Graceful degradation** — pre-2023 races show lap totals and the track map; hatched panels replace missing data with a clear explanation
+
+---
 
 ## Stack
 
-- **React 18** + **Vite**
-- **Three.js** for 3D simulation
-- **ClickHouse** as the data warehouse (via HTTP API)
-- Data modelled with dbt — mart tables exposed over ClickHouse Cloud or self-hosted
+```
+Frontend         React 18 + Vite
+3D engine        Three.js  (WIP)
+Data warehouse   ClickHouse (HTTP API)
+Data modelling   dbt  (mart tables in Monocoque)
+Fonts            Oswald · JetBrains Mono · Geist
+```
+
+---
 
 ## Prerequisites
 
-- Node.js 18+
-- A ClickHouse instance with the F1 mart schema loaded
+1. **Node.js 18+**
+2. A running **ClickHouse** instance (local or Cloud) with the `f1_mart` schema populated
+   → See [Monocoque](https://github.com/rajeevpaudel/Monocoque) for the ETL pipeline
+
+---
 
 ## Setup
 
 ```bash
+git clone https://github.com/rajeevpaudel/f1-viz.git
+cd f1-viz
 npm install
 ```
 
@@ -49,71 +126,98 @@ CLICKHOUSE_DATABASE=f1_mart
 npm run dev
 ```
 
-## Track path data
+Open [http://localhost:5173](http://localhost:5173) — the boot screen will connect to the warehouse automatically.
 
-Track SVG paths and sector break points are stored in `src/data/trackPaths.json`. To regenerate or extend:
-
-```bash
-# From the warehouse (recommended)
-node scripts/fetch-tracks-warehouse.mjs
-
-# From FastF1 (Python, requires fastf1 installed)
-python scripts/fetch-tracks-fastf1.py
-```
-
-## Project structure
-
-```
-src/
-  App.jsx                  — root component, view/mode state machine
-  main.jsx                 — React entry point
-  styles/index.css         — all styles, design tokens as CSS custom properties
-  components/              — 2D view components
-    DriverCard.jsx
-    DriverPicker.jsx
-    CarSchematic.jsx
-    TrackRibbon.jsx
-    MiniSectorStrip.jsx
-    SectorBars.jsx
-    SpeedTraps.jsx
-    TweaksPanel.jsx
-    Select.jsx
-    LoadingScreens.jsx
-  simulation/
-    SimulationView.jsx     — Three.js 3D lap replay
-  data/
-    clickhouse.js          — all warehouse queries
-    circuits.js            — circuit metadata and SVG path helpers
-    trackPaths.json        — pre-generated SVG paths + sector breaks
-    teamColours.js         — fallback team colour hex codes
-    driverHeadshots.js     — headshot URL helpers
-  hooks/
-    useCountUp.js          — animated number hook
-  carModel.js              — 3D car model loader
-
-public/
-  f1_car.glb               — 3D car model
-  favicon.svg
-  icons.svg
-
-scripts/
-  fetch-tracks-warehouse.mjs   — pull track geometry from warehouse
-  fetch-tracks-fastf1.py       — pull track geometry via FastF1
-  fetch-tracks.mjs             — generic track fetch helper
-```
+---
 
 ## Data availability
 
 | Feature | Seasons |
 |---|---|
-| Qualifying results (positions, Q1/Q2/Q3 times) | All |
+| Qualifying results — positions, Q1/Q2/Q3 times | All |
 | Sector times, speed traps | 2023+ |
 | Mini-sector segments | 2023+ |
-| Telemetry (3D simulation, animated cars) | 2023+ |
+| Telemetry — animated cars, 3D simulation | 2023+ |
 
-Pre-2023 rounds show lap totals and the track map without live car animation. The UI handles missing data gracefully with hatched fallback panels.
+Pre-2023 rounds show lap totals and the static track outline. The UI handles missing data gracefully with labelled fallback panels rather than blank spaces.
 
-## Notes
+---
 
-- Minimum viewport: **1480px** — this is a desktop broadcast tool, not responsive
-- The tweaks panel (bottom-right ⚙) lets you toggle scanlines, compact density, accent colour, and animated cars on the track map
+## Track geometry
+
+Track SVG paths and sector breakpoints are stored in `src/data/trackPaths.json`. To regenerate or extend for a new circuit:
+
+```bash
+# Pull from the warehouse (recommended)
+node scripts/fetch-tracks-warehouse.mjs
+
+# Pull via FastF1 (requires Python + fastf1)
+python scripts/fetch-tracks-fastf1.py
+```
+
+---
+
+## Project structure
+
+```
+src/
+  App.jsx                    root component — view/mode state machine
+  main.jsx                   React entry point
+  styles/index.css           all styles; design tokens as CSS custom properties
+
+  components/
+    DriverCard.jsx            qualifying position, team colour, lap time
+    DriverPicker.jsx          grid picker sorted by session time
+    TrackRibbon.jsx           SVG circuit map with animated cars
+    MiniSectorStrip.jsx       per-mini-sector colour strip
+    SectorBars.jsx            S1/S2/S3 delta bars
+    SpeedTraps.jsx            i1 / i2 / finish trap speeds
+    TweaksPanel.jsx           scanlines / compact / accent controls
+    CarSchematic.jsx          tyre/setup schematic overlay
+    LoadingScreens.jsx        animated loading variants
+    Select.jsx                styled dropdown
+
+  simulation/
+    SimulationView.jsx        Three.js 3D lap replay  (WIP)
+
+  data/
+    clickhouse.js             all warehouse queries
+    circuits.js               circuit metadata and SVG path helpers
+    trackPaths.json           pre-generated SVG paths + sector breaks
+    teamColours.js            fallback team colour hex codes
+    driverHeadshots.js        headshot URL helpers
+
+  hooks/
+    useCountUp.js             animated number hook
+
+  carModel.js                 3D car model loader
+
+public/
+  f1_car.glb                  3D car model (GLB)
+  favicon.svg
+  icons.svg
+
+scripts/
+  fetch-tracks-warehouse.mjs  pull track geometry from warehouse
+  fetch-tracks-fastf1.py      pull track geometry via FastF1
+```
+
+---
+
+## UI notes
+
+- **Minimum viewport: 1480px** — this is a desktop broadcast/analysis tool, not a mobile-responsive app
+- The **tweaks panel** (bottom-right corner) lets you switch accent colours, toggle the CRT scanline overlay, switch to compact density, and toggle animated cars on the track map
+- The **3D simulation tab** is visible but marked WIP; it requires 2023+ telemetry and is disabled for older races
+
+---
+
+## Related
+
+- [Monocoque](https://github.com/rajeevpaudel/Monocoque) — the ETL pipeline that ingests raw F1 data, transforms it with dbt, and loads it into the ClickHouse warehouse that powers this UI
+
+---
+
+## License
+
+[MIT](LICENSE)
